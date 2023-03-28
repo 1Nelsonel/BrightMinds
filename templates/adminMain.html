@@ -43,7 +43,7 @@
                     </a>
 					<div class="dropdown-menu">
 						<a class="dropdown-item" href="{% url 'adminProfile' %}">Settings</a>
-						<a class="dropdown-item" href="login.html">Logout</a>
+						<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 					</div>
                 </li>
             </ul>
@@ -51,7 +51,7 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="{% url 'profile' %}">Settings</a>
-                    <a class="dropdown-item" href="login.html">Logout</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
                         </li>
                         <li class="menu-title">Extras</li>
                         <li>
-                            <a href="#"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
+                            <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> <span>Logout</span></a>
                         </li>
                         
                     </ul>

@@ -1,7 +1,9 @@
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.contrib.auth import logout
 
+# login view
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -17,6 +19,12 @@ def login_view(request):
                 return redirect('home')
         else:
             context = {'error_message': 'Invalid login credentials'}
-            return render(request, 'login.html', context)
+            return render(request, 'userAuth/login.html', context)
     else:
         return render(request, 'userAuth/login.html')
+
+
+# logout views
+def logout_view(request):
+    logout(request)
+    return redirect('login')
