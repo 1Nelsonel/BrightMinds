@@ -8,12 +8,25 @@ import string
 from .forms import UserSignUpForm
 from base_users.models import UserProfile
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
 User = get_user_model()
 
+
+def superuser_required(function=None, redirect_field_name='next', login_url='login'):
+    actual_decorator = user_passes_test(
+        lambda u: u.is_active and u.is_superuser,
+        login_url=login_url,
+        redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+
 # create user
-
-
+@superuser_required
 def allUsers(request):
     allusers = User.objects.all()
     if request.method == 'POST':
@@ -59,39 +72,31 @@ def allUsers(request):
 
 
 # home- dashboard
+@superuser_required
 def dashboard(request):
     context = {}
     return render(request, 'superUser/home.html', context)
 
 # profile settings
-
-
+@superuser_required
 def setting(request):
     context = {}
     return render(request, 'superUser/settings.html', context)
 
 # calender
-
-
+@superuser_required
 def calender(request):
     context = {}
     return render(request, 'superUser/calender.html', context)
 
 # monthly report
-
-
+@superuser_required
 def monthly(request):
     context = {}
     return render(request, 'superUser/monthly.html', context)
 
 # yearly report
-
-
+@superuser_required
 def yearly(request):
     context = {}
     return render(request, 'superUser/yearly.html', context)
-
-
-# @login_required
-# def home(request):
-#     return render(request, 'home.html')
