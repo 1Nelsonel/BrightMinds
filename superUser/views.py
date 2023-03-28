@@ -1,53 +1,60 @@
-from django.shortcuts import render
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.shortcuts import redirect, render
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
+import random
+import string
 
-from .forms import UserSignUpForm, UserProfileForm
+from .forms import UserSignUpForm
 from base_users.models import UserProfile
-from django.contrib.auth.models import User
+from django.core.mail import send_mail
+
+User = get_user_model()
+
+# create user
 
 
-# add users
-@login_required
 def allUsers(request):
-    if not request.user.is_superuser:
-        messages.error(request, "You don't have permission to create users.")
-        return redirect('home')
-
+    allusers = User.objects.all()
     if request.method == 'POST':
-        user_form = UserSignUpForm(request.POST)
-        profile_form = UserProfileForm(request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save(commit=False)
-            user.password = make_password(profile_form.cleaned_data['id_number'])
+        form = UserSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            password = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=12))
+            user.set_password(password)
             user.save()
 
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
+            # Check if a UserProfile instance with the same user_id already exists in the database
+            profile = UserProfile.objects.filter(user=user).first()
 
-            username = user.username
-            email = user.email
-            password = profile_form.cleaned_data['id_number']
+            if profile:
+                # If a profile exists, update its data
+                profile.mobile_number = form.cleaned_data['mobile_number']
+                profile.id_number = form.cleaned_data['id_number']
+                profile.save()
+            else:
+                # Otherwise, create a new profile
+                profile = UserProfile(user=user, mobile_number=form.cleaned_data['mobile_number'], id_number=form.cleaned_data['id_number'])
+                profile.save()
 
-            send_mail(
-                'Your login credentials',
-                f'Username: {username}\nPassword: {password}',
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            # Send email to the new user with login credentials
+            subject = 'BrightMinds login credentials'
+            message = f'Hello {user.first_name} {user.last_name} Your BrightMind Group has been created,\n\nYou can login to your account with the following credentials:\n\nUsername: {user.username}\nPassword: {password}\n\nThank you!'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [user.email, ]
+            send_mail(subject, message, email_from, recipient_list)
+            # code for sending email
 
-            messages.success(request, f'{username} created successfully! Login credentials sent to {email}.')
-            return redirect('create_user')
+            messages.success(request, 'User created successfully!')
+            return redirect('adminUsers')
+
     else:
-        user_form = UserSignUpForm()
-        profile_form = UserProfileForm()
-    context = {'user_form': user_form, 'profile_form': profile_form}
+        form = UserSignUpForm()
+
+    context = {
+        'form': form,
+        'allusers': allusers,
+    }
     return render(request, 'superUser/users.html', context)
 
 
@@ -57,25 +64,32 @@ def dashboard(request):
     return render(request, 'superUser/home.html', context)
 
 # profile settings
+
+
 def setting(request):
     context = {}
     return render(request, 'superUser/settings.html', context)
 
 # calender
+
+
 def calender(request):
     context = {}
     return render(request, 'superUser/calender.html', context)
 
 # monthly report
+
+
 def monthly(request):
     context = {}
     return render(request, 'superUser/monthly.html', context)
 
 # yearly report
+
+
 def yearly(request):
     context = {}
     return render(request, 'superUser/yearly.html', context)
-
 
 
 # @login_required

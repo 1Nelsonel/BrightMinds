@@ -39,7 +39,7 @@
                         <form method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="modal-body">
-                                {% for fields in user_form %}
+                                {% for fields in form %}
                                 <div class="form-group">
                                     <label for="carousel-title">{{fields.label}}</label>
                                     {{fields}}
@@ -84,12 +84,13 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for user in allusers %}
                             <tr>
-                                <td>Jennifer Robinson</td>
+                                <td>{{user.first_name}} {{user.last_name}}</td>
 
-                                <td>16666297</td>
-                                <td>(207) 808 8863</td>
-                                <td>jenniferrobinson@example.com</td>
+                                <td>{{user.userprofile.id_number}}</td>
+                                <td>{{user.userprofile.mobile_number}}</td>
+                                <td>{{user.email}}</td>
                                 <td class="text-right">
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
@@ -104,6 +105,7 @@
                                     </div>
                                 </td>
                             </tr>
+                            {% endfor %}
 
                         </tbody>
                     </table>
