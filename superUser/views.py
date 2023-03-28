@@ -70,6 +70,31 @@ def allUsers(request):
     }
     return render(request, 'superUser/users.html', context)
 
+@superuser_required
+def updateUser(request, pk):
+    user = User.objects.get(id=pk)
+
+    # profile = UserProfile.objects.get(id=pk)
+
+    if request.method == 'POST':
+        form = UserSignUpForm(request.POST, instance=user)
+        # profile_form = UserProfile(request.POST, instance=profile)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save()
+            # profile_form.save()
+            messages.success(request, 'User updated successfully!')
+            return redirect('adminUsers')
+
+    else:
+        form = UserSignUpForm(instance=user)
+        # profile_form = UserProfile(instance=profile)
+
+    context = {'form': form,  }
+    return render(request, 'superUser/editUser.html', context)
+
+
 
 # home- dashboard
 @superuser_required
