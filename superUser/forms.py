@@ -10,6 +10,7 @@ class UserSignUpForm(forms.ModelForm):
     last_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'enter last name', 'required': True}))
     mobile_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'enter mobile number', 'required': True}))
     id_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'enter ID number', 'required': True}))
+    # is_active = forms.BooleanField(required=False, initial=True)
 
     class Meta:
         model = User

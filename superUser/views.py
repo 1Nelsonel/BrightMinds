@@ -72,26 +72,49 @@ def allUsers(request):
 
 @superuser_required
 def updateUser(request, pk):
-    user = User.objects.get(id=pk)
-
-    # profile = UserProfile.objects.get(id=pk)
+    user = User.objects.get(pk=pk)
+    allusers = User.objects.all()
 
     if request.method == 'POST':
         form = UserSignUpForm(request.POST, instance=user)
-        # profile_form = UserProfile(request.POST, instance=profile)
-
         if form.is_valid():
             user = form.save(commit=False)
+            password = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=12))
+            user.set_password(password)
             user.save()
-            # profile_form.save()
+
+            # Check if a UserProfile instance with the same user_id already exists in the database
+            profile = UserProfile.objects.filter(user=user).first()
+
+            if profile:
+                # If a profile exists, update its data
+                profile.mobile_number = form.cleaned_data['mobile_number']
+                profile.id_number = form.cleaned_data['id_number']
+                profile.save()
+            else:
+                # Otherwise, create a new profile
+                profile = UserProfile(user=user, mobile_number=form.cleaned_data['mobile_number'], id_number=form.cleaned_data['id_number'])
+                profile.save()
+
+            # Send email to the user with updated login credentials
+            subject = 'BrightMinds login credentials updated'
+            message = f'Hello {user.first_name} {user.last_name},\n\nYour BrightMind Group account credentials have been updated:\n\nUsername: {user.username}\nPassword: {password}\n\nThank you!'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [user.email, ]
+            send_mail(subject, message, email_from, recipient_list)
+
             messages.success(request, 'User updated successfully!')
             return redirect('adminUsers')
-
     else:
-        form = UserSignUpForm(instance=user)
-        # profile_form = UserProfile(instance=profile)
+        # Preload the mobile_number and id_number fields with the existing user data
+        profile = UserProfile.objects.filter(user=user).first()
+        initial_data = {'mobile_number': profile.mobile_number, 'id_number': profile.id_number}
+        form = UserSignUpForm(instance=user, initial=initial_data)
 
-    context = {'form': form,  }
+    context = {
+        'form': form,
+        'allusers': allusers,
+    }
     return render(request, 'superUser/editUser.html', context)
 
 
