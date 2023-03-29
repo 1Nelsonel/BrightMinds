@@ -80,6 +80,7 @@
                                 <th>Id No.</th>
                                 <th>Phone</th>
                                 <th>Email</th>
+                                <th>Status</th>
                                 <th class="text-right">Action</th>
                             </tr>
                         </thead>
@@ -91,6 +92,13 @@
                                 <td>{{ user.userprofile.id_number }}</td>
                                 <td>{{ user.userprofile.mobile_number }}</td>
                                 <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_active %}
+                                      <span class="custom-badge status-green">Active</span>
+                                    {% else %}
+                                      <span class="custom-badge status-red">Inactive</span>
+                                    {% endif %}
+                                  </td>
                                 <td class="text-right">
                                     <div class="dropdown dropdown-action">
                                         <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
