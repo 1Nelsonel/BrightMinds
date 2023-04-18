@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.conf import settings
 import random
 import string
@@ -52,7 +53,8 @@ def allUsers(request):
 
             # Send email to the new user with login credentials
             subject = 'BrightMinds login credentials'
-            message = f'Hello {user.first_name} {user.last_name} Your BrightMind Group has been created,\n\nYou can login to your account with the following credentials:\n\nUsername: {user.username}\nPassword: {password}\n\nThank you!'
+            # message = f'Hello {user.first_name} {user.last_name} Your BrightMind Group has been created,\n\nYou can login to your account with the following credentials:\n\nUsername: {user.username}\nPassword: {password}\n\nThank you!'
+            message = f'Hello {user.first_name} {user.last_name},\n\nYour BrightMind Group account has been created.\n\nYou can log in to your account using the following credentials:\n\nUsername: {user.username}\nPassword: {password}\n\nPlease click on the link below to log in:\n\n{request.build_absolute_uri(reverse("login"))}\n\nThank you!'
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [user.email, ]
             send_mail(subject, message, email_from, recipient_list)
@@ -70,6 +72,7 @@ def allUsers(request):
     }
     return render(request, 'superUser/users.html', context)
 
+# update Users
 @superuser_required
 def updateUser(request, pk):
     user = User.objects.get(id=pk)
@@ -110,7 +113,19 @@ def updateUser(request, pk):
     }
     return render(request, 'superUser/editUser.html', context)
 
+# delete user
+def deleteUser(request, pk):
+    user = User.objects.get(id=pk)
+    
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, 'User deleted successfully!')
+        return redirect('adminUsers')
 
+    context = {
+        'user': user,
+    }
+    return render(request, 'superUser/deleteuser.html', context)
 
 # home- dashboard
 @superuser_required

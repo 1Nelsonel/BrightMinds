@@ -8,25 +8,19 @@
     <div class="content">
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
-                <h4 class="page-title">Edit Patient</h4>
+                <h4 class="page-title">Delete user</h4>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
+                <p>Are you sure you want to delete user "{{ user.first_name }} {{ user.last_name }}"?</p>
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                
-                    <div class="m-t-20 text-center">
-                        <button class="btn btn-primary submit-btn">Save</button>
-                    </div>
+                    <button type="submit" class="btn btn-danger">Yes, delete user</button>
+                    <a href="{{request.META.HTTP_REFERER}}" class="btn btn-secondary">Cancel</a>
                 </form>
-                               
             </div>
         </div>
     </div>
 
-</div>
-
-
-{% endblock %}
+    {% endblock %}
